@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}图书注销{% endblock %}
+{% block body %}
+<div class="layui-card">
+    <div class="layui-card-header">图书注销</div>
+    <div class="layui-card-body">
+        <form class="layui-form" method="post" id="searchForm">
+            <div class="layui-form-item">
+                <label class="layui-form-label">搜索方式</label>
+                <div class="layui-input-inline">
+                    {{ form.method(class="layui-select") }}
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">搜索内容</label>
+                <div class="layui-input-inline">
+                    {{ form.content(class="layui-input") }}
+                </div>
+                <div class="layui-input-inline">
+                    <button class="layui-btn" lay-submit lay-filter="searchForm">搜索</button>
+                </div>
+            </div>
+        </form>
+
+        <table class="layui-table">
+            <thead>
+                <tr>
+                    <th>条形码</th>
+                    <th>ISBN</th>
+                    <th>书名</th>
+                    <th>作者</th>
+                    <th>出版社</th>
+                    <th>馆藏位置</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="bookList">
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+layui.use(['form', 'layer'], function(){
+    var form = layui.form;
+    var layer = layui.layer;
+    
+    $('#searchForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/find_withdraw_book',
+            type: 'POST',
+            data: {
+                method: $('#method').val(),
+                content: $('#content').val()
+            },
+            success: function(data) {
+                var html = '';
+                data.forEach(function(book) {
+                    html += '<tr>';
+                    html += '<td>' + book.barcode + '</td>';
+                    html += '<td>' + book.isbn + '</td>';
+                    html += '<td>' + book.book_name + '</td>';
+                    html += '<td>' + book.author + '</td>';
+                    html += '<td>' + book.press + '</td>';
+                    html += '<td>' + book.location + '</td>';
+                    html += '<td><button class="layui-btn layui-btn-danger layui-btn-sm withdraw-btn" data-barcode="' + book.barcode + '">注销</button></td>';
+                    html += '</tr>';
+                });
+                $('#bookList').html(html);
+            }
+        });
+    });
+
+    $(document).on('click', '.withdraw-btn', function() {
+        var barcode = $(this).data('barcode');
+        layer.confirm('确定要注销这本图书吗？', {
+            btn: ['确定','取消']
+        }, function(){
+            $.ajax({
+                url: '/withdraw_book',
+                type: 'POST',
+                data: {
+                    barcode: barcode
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        layer.msg('图书注销成功！');
+                        $('#searchForm').submit();
+                    } else {
+                        layer.msg('图书注销失败！');
+                    }
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}图书词库设置{% endblock %}
+{% block body %}
+<div class="layui-card">
+    <div class="layui-card-header">添加新词汇</div>
+    <div class="layui-card-body">
+        <form class="layui-form" method="post">
+            <div class="layui-form-item">
+                <label class="layui-form-label">词汇</label>
+                <div class="layui-input-block">
+                    <input type="text" name="word" required lay-verify="required" placeholder="请输入词汇" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">分类</label>
+                <div class="layui-input-block">
+                    <select name="category" lay-verify="required">
+                        <option value="">请选择分类</option>
+                        <option value="文学">文学</option>
+                        <option value="历史">历史</option>
+                        <option value="科学">科学</option>
+                        <option value="艺术">艺术</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">描述</label>
+                <div class="layui-input-block">
+                    <textarea name="description" placeholder="请输入描述" class="layui-textarea" required lay-verify="required"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">添加</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="layui-card">
+    <div class="layui-card-header">词汇列表</div>
+    <div class="layui-card-body">
+        <table class="layui-table">
+            <thead>
+                <tr>
+                    <th>词汇</th>
+                    <th>分类</th>
+                    <th>描述</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vocab in vocabularies %}
+                <tr>
+                    <td>{{ vocab.word }}</td>
+                    <td>{{ vocab.category }}</td>
+                    <td>{{ vocab.description }}</td>
+                    <td>
+                        <form method="post" action="{{ url_for('delete_vocabulary', id=vocab.id) }}" style="display: inline;">
+                            <button type="submit" class="layui-btn layui-btn-danger layui-btn-sm" lay-submit lay-filter="deleteForm">删除</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+layui.use(['form', 'layer'], function(){
+    var form = layui.form;
+    var layer = layui.layer;
+    
+    form.render();
+    
+    form.on('submit(deleteForm)', function(data){
+        layer.confirm('确定要删除这个词汇吗？', {
+            btn: ['确定','取消']
+        }, function(){
+            data.form.submit();
+        });
+        return false;
+    });
+});
+</script>
+{% endblock %} 

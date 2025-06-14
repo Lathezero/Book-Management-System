@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}图书馆信息设置{% endblock %}
+{% block body %}
+<div class="layui-card">
+    <div class="layui-card-header">图书馆信息设置</div>
+    <div class="layui-card-body">
+        <form class="layui-form" method="post">
+            <div class="layui-form-item">
+                <label class="layui-form-label">图书馆名称</label>
+                <div class="layui-input-block">
+                    <input type="text" name="name" required lay-verify="required" placeholder="请输入图书馆名称" autocomplete="off" class="layui-input" value="{{ info.name if info else '' }}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">地址</label>
+                <div class="layui-input-block">
+                    <input type="text" name="address" required lay-verify="required" placeholder="请输入地址" autocomplete="off" class="layui-input" value="{{ info.address if info else '' }}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">联系电话</label>
+                <div class="layui-input-block">
+                    <input type="text" name="phone" required lay-verify="required" placeholder="请输入联系电话" autocomplete="off" class="layui-input" value="{{ info.phone if info else '' }}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">电子邮箱</label>
+                <div class="layui-input-block">
+                    <input type="email" name="email" required lay-verify="required|email" placeholder="请输入电子邮箱" autocomplete="off" class="layui-input" value="{{ info.email if info else '' }}">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">开放时间</label>
+                <div class="layui-input-block">
+                    <input type="text" name="opening_hours" required lay-verify="required" placeholder="请输入开放时间" autocomplete="off" class="layui-input" value="{{ info.opening_hours if info else '' }}">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">图书馆简介</label>
+                <div class="layui-input-block">
+                    <textarea name="description" placeholder="请输入图书馆简介" class="layui-textarea" required lay-verify="required">{{ info.description if info else '' }}</textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">保存</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+layui.use(['form', 'layer'], function(){
+    var form = layui.form;
+    var layer = layui.layer;
+    
+    form.render();
+});
+</script>
+{% endblock %} 
