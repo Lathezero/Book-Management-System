@@ -2,51 +2,128 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="../static/layui/css/layui.css">
-    <link rel="stylesheet" href="../static/login.css">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='layui/css/layui.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdn.staticfile.org/popper.js/1.12.5/umd/popper.min.js"></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <style>
-          .alert{position:relative;padding:.75rem 1.25rem;margin-bottom:1rem;border:1px solid transparent;border-radius:.25rem}
-          .close{position:absolute;top:0;right:0;padding:.75rem 1.25rem;color:inherit}
-          .alert-warning{color:#856404;background-color:#fff3cd;border-color:#ffeeba}
-          .close{float:right;font-size:1.5rem;font-weight:700;line-height:1;color:#000;text-shadow:0 1px 0 #fff;opacity:.5}
-          .close:focus,.close:hover{color:#000;text-decoration:none;opacity:.75}
-          .close:not(:disabled):not(.disabled){cursor:pointer}
-          button.close{padding:0;background-color:transparent;border:0;-webkit-appearance:none}
-          .close{padding:1rem;margin:-1rem -1rem -1rem auto}
-          .alert-dismissible .close{position:absolute;top:0;right:0;padding:.75rem 1.25rem;color:inherit}
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f5f6fa;
+            --text-color: #2c3e50;
+            --border-color: #e1e8ed;
+            --hover-color: #357abd;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-color);
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .layui-header {
+            background-color: white !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 60px;
+            padding: 0 20px;
+        }
+
+        .layui-logo {
+            color: var(--primary-color) !important;
+            font-size: 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .layui-logo:hover {
+            transform: translateY(-1px);
+        }
+
+        .layui-nav {
+            background-color: transparent !important;
+        }
+
+        .layui-nav .layui-nav-item a {
+            color: var(--text-color) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .layui-nav .layui-nav-item a:hover {
+            color: var(--primary-color) !important;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px;
+            padding: 15px 20px;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .close {
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .close:hover {
+            opacity: 0.75;
+        }
+
+        @media screen and (max-width: 768px) {
+            .layui-header {
+                height: auto;
+                padding: 10px;
+            }
+
+            .layui-logo {
+                font-size: 1.2rem;
+            }
+
+            .layui-nav {
+                padding: 0;
+            }
+        }
     </style>
+    {% block style %}{% endblock %}
 </head>
 <body>
 <div class="layui-layout layui-layout-admin">
-<div class="layui-header layui-bg-cyan">
-  <div class="layui-logo"><span style="color:#F0F0F0;font-size: large">图书管理系统</span></div>
-    <ul class="layui-nav layui-layout-right">
-      <li class="layui-nav-item"><a class="aa" href="{{ url_for('login') }}">登录</a></li>
-      <li class="layui-nav-item"><a class="aa" href="{{ url_for('user_student') }}">学生信息查询</a></li>
-      <li class="layui-nav-item"><a class="aa" href="{{ url_for('user_book') }}">图书信息查询</a></li>
-    </ul>
-  </div>
+    <div class="layui-header">
+        <div class="layui-logo">图书管理系统</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item"><a href="{{ url_for('login') }}">登录</a></li>
+            <li class="layui-nav-item"><a href="{{ url_for('user_student') }}">学生信息查询</a></li>
+            <li class="layui-nav-item"><a href="{{ url_for('user_book') }}">图书信息查询</a></li>
+        </ul>
+    </div>
 </div>
+
 {% for message in get_flashed_messages() %}
     <div class="alert alert-warning">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{ message }}
+        {{ message }}
     </div>
 {% endfor %}
-</div>
 
 {% block body %}
 {% endblock %}
 
-<script src="../static/layui/layui.js"></script>
+<script src="{{ url_for('static', filename='layui/layui.js') }}"></script>
 <script type="text/javascript">
     layui.use('form', function () {
         var form = layui.form;
-
     });
 </script>
 {% block script %}{% endblock %}
