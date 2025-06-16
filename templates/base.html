@@ -138,7 +138,7 @@
     }
 
     .layui-card-body {
-      padding: 20px;
+      padding: 30px; /* Increased padding for more breathing room */
     }
 
     .alert {
@@ -227,7 +227,13 @@
           <a href="{{ url_for('search_book') }}">图书信息查询</a>
         </li>
         <li class="layui-nav-item">
+          <a href="{{ url_for('all_books') }}">所有书籍</a>
+        </li>
+        <li class="layui-nav-item">
           <a href="{{ url_for('search_student') }}">学生信息查询</a>
+        </li>
+        <li class="layui-nav-item">
+          <a href="{{ url_for('all_students') }}">所有学生信息</a>
         </li>
       </ul>
     </div>

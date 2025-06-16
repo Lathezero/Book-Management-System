@@ -300,6 +300,13 @@ def find_book():
     return jsonify(data)
 
 
+@app.route('/all_books', methods=['GET'])
+@login_required
+def all_books():
+    books = Book.query.all()
+    return render_template('all-books.html', name=session.get('name'), books=books)
+
+
 @app.route('/user/book', methods=['GET', 'POST'])
 def user_book():
     form = SearchBookForm()
@@ -331,6 +338,13 @@ def find_student():
     else:
         valid_date = timeStamp(stu.valid_date)
         return jsonify([{'name': stu.student_name, 'gender': stu.sex, 'valid_date': valid_date, 'debt': stu.debt}])
+
+
+@app.route('/all_students', methods=['GET'])
+@login_required
+def all_students():
+    students = Student.query.all()
+    return render_template('all-students.html', name=session.get('name'), students=students)
 
 
 @app.route('/record', methods=['POST'])

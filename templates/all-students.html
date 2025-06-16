@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}所有学生信息{% endblock %}
+
+{% block style %}
+<style>
+    /* Additional styles for all-students.html */
+    .layui-card-header h2 {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+    }
+
+    .layui-table-view {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        background-color: white;
+    }
+
+    .layui-table thead tr {
+        background-color: var(--secondary-color);
+        color: var(--text-color);
+        font-weight: 600;
+    }
+
+    .layui-table th {
+        padding: 40px 25px !important; /* Significantly increased padding and !important */
+        text-align: center !important; /* Centered text and !important */
+    }
+
+    .layui-table td {
+        padding: 38px 25px !important; /* Significantly increased padding and !important */
+        color: var(--text-color);
+        line-height: 2.2 !important; /* Increased line height and !important */
+        text-align: center !important; /* Centered text and !important */
+    }
+
+    .layui-table tbody tr:hover {
+        background-color: #f0f2f5;
+    }
+
+    /* Responsive adjustments for tables */
+    @media screen and (max-width: 768px) {
+        .layui-table-view {
+            overflow-x: auto;
+        }
+
+        .layui-table {
+            min-width: 700px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block card %}
+<div class="layui-card-header">
+    <h2>所有学生信息</h2>
+</div>
+{% endblock %}
+
+{% block body %}
+<div class="layui-card-body">
+    <div class="layui-form layui-border-box layui-table-view">
+        <table lay-even lay-skin="row" class="layui-table">
+            <thead>
+                <tr>
+                    <th lay-data="{field:'card_id'}">借书证号</th>
+                    <th lay-data="{field:'student_id'}">学号</th>
+                    <th lay-data="{field:'student_name'}">姓名</th>
+                    <th lay-data="{field:'sex'}">性别</th>
+                    <th lay-data="{field:'telephone'}">电话</th>
+                    <th lay-data="{field:'enroll_date'}">入学日期</th>
+                    <th lay-data="{field:'valid_date'}">有效期</th>
+                    <th lay-data="{field:'loss'}">是否挂失</th>
+                    <th lay-data="{field:'debt'}">是否欠费</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.card_id }}</td>
+                    <td>{{ student.student_id }}</td>
+                    <td>{{ student.student_name }}</td>
+                    <td>{{ student.sex }}</td>
+                    <td>{{ student.telephone if student.telephone else '无' }}</td>
+                    <td>{{ student.enroll_date }}</td>
+                    <td>{{ student.valid_date }}</td>
+                    <td>{{ '是' if student.loss else '否' }}</td>
+                    <td>{{ '是' if student.debt else '否' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %} 
