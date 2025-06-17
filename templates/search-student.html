@@ -33,7 +33,26 @@
         <span style="margin-left: 140px;">是否欠费：<span id="debt"></span></span>
     </p>
     </div>
+    
+    <!-- 添加当前借阅表格 -->
+    <div id="current-borrow">
+        <h3 style="margin: 15px 0;">当前借阅</h3>
+        <table lay-even id="current-books" lay-filter="current">
+          <thead>
+            <tr>
+              <th lay-data="{field:'book_name', width:200}">书名</th>
+              <th lay-data="{field:'author', width:140}">作者</th>
+              <th lay-data="{field:'borrow_date', width:200}">借书日期</th>
+              <th lay-data="{field:'due_date', width:200}">应还日期</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+    </div>
+
     <div id="remove">
+    <h3 style="margin: 15px 0;">借阅历史</h3>
     <table lay-even id="result" lay-filter="re">
       <thead>
         <tr>
@@ -64,6 +83,13 @@
         table.init('re', {
               height: 390
               ,limit: 7
+              ,page: true
+        });
+
+        // 初始化当前借阅表格
+        table.init('current', {
+              height: 200
+              ,limit: 5
               ,page: true
         });
 
@@ -98,6 +124,25 @@
                                 }
                                 else{
                                     $("#debt").append('是');
+                                }
+
+                                if(data[0].borrowed_books && data[0].borrowed_books.length > 0) {
+                                    $('#current-borrow').show();
+                                    table.render({
+                                        elem: '#current-books'
+                                        ,data: data[0].borrowed_books
+                                        ,cols: [[
+                                            {field:'book_name', title:'书名', width:200}
+                                            ,{field:'author', title:'作者', width:140}
+                                            ,{field:'borrow_date', title:'借书日期', width:200}
+                                            ,{field:'due_date', title:'应还日期', width:200}
+                                        ]]
+                                        ,page: true
+                                        ,height: 200
+                                        ,limit: 5
+                                    });
+                                } else {
+                                    $('#current-borrow').hide();
                                 }
 
                                 $.ajax({

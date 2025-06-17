@@ -347,7 +347,37 @@ def find_student():
         return jsonify([])
     else:
         valid_date = timeStamp(stu.valid_date)
-        return jsonify([{'name': stu.student_name, 'gender': stu.sex, 'valid_date': valid_date, 'debt': stu.debt}])
+        
+        # 查询该学生当前借阅的图书（修正后的写法）
+        borrowed_books = db.session.query(
+            Book.book_name,
+            Book.author,
+            ReadBook.start_date,
+            ReadBook.due_date
+        ).select_from(ReadBook) \
+         .join(Inventory, ReadBook.barcode == Inventory.barcode) \
+         .join(Book, Inventory.isbn == Book.isbn) \
+         .filter(
+            ReadBook.card_id == stu.card_id,
+            ReadBook.end_date.is_(None)
+        ).all()
+        
+        books_info = []
+        for book in borrowed_books:
+            books_info.append({
+                'book_name': book.book_name,
+                'author': book.author,
+                'borrow_date': timeStamp(book.start_date),
+                'due_date': timeStamp(book.due_date)
+            })
+        
+        return jsonify([{
+            'name': stu.student_name, 
+            'gender': stu.sex, 
+            'valid_date': valid_date, 
+            'debt': stu.debt,
+            'borrowed_books': books_info
+        }])
 
 # 所有学生页面
 @app.route('/all_students', methods=['GET'])
