@@ -1,0 +1,107 @@
+{% extends "base-minimal.html" %}
+{% block title %}欢迎使用图书管理系统{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-main {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+        margin: 20px;
+    }
+
+    header {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .layui-input {
+        height: 45px;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        padding: 0 15px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .layui-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+    }
+
+    .layui-btn {
+        width: 100%;
+        height: 45px;
+        background-color: var(--primary-color);
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .layui-btn:hover {
+        background-color: var(--hover-color);
+        transform: translateY(-1px);
+    }
+
+    hr {
+        margin: 25px 0;
+        border: none;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .fr {
+        color: var(--text-color);
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .fr:hover {
+        color: var(--primary-color);
+    }
+
+    @media screen and (max-width: 480px) {
+        .login-main {
+            margin: 15px;
+            padding: 30px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="login-main">
+    <header>图书管理系统</header>
+    <form class="layui-form" method="post">
+        {{ form.csrf_token }}
+        <div class="layui-input-inline" style="width: 90%;">
+            {{ form.account(class="layui-input",placeholder="请输入账号", style="width: 100%;") }}
+        </div>
+        <div class="layui-input-inline" style="width: 90%;">
+            {{ form.password(class="layui-input",placeholder="请输入密码", style="width: 100%;") }}
+        </div>
+        <div class="layui-input-inline login-btn" style="width: 90%">
+            {{ form.submit(class="layui-btn") }}
+        </div>
+        <hr/>
+        <p style="text-align: center">
+            <a href="javascript:;" class="fr">忘记密码请与系统管理员联系</a>
+        </p>
+    </form>
+</div>
+{% endblock %}
