@@ -68,8 +68,6 @@
                     <th lay-data="{field:'press'}">出版社</th>
                     <th lay-data="{field:'author'}">作者</th>
                     <th lay-data="{field:'class_name'}">类别</th>
-                    <th lay-data="{field:'count'}">馆藏数量</th>
-                    <th lay-data="{field:'available'}">可借数量</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,24 +78,6 @@
                     <td>{{ book.press }}</td>
                     <td>{{ book.author }}</td>
                     <td>{{ book.class_name }}</td>
-                    <td>
-                        {% set count = 0 %}
-                        {% for inventory in book.inventory %}
-                            {% if not inventory.withdraw %}
-                                {% set count = count + 1 %}
-                            {% endif %}
-                        {% endfor %}
-                        {{ count }}
-                    </td>
-                    <td>
-                        {% set available_count = 0 %}
-                        {% for inventory in book.inventory %}
-                            {% if not inventory.withdraw and inventory.status %}
-                                {% set available_count = available_count + 1 %}
-                            {% endif %}
-                        {% endfor %}
-                        {{ available_count }}
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

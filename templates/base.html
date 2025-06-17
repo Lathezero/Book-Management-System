@@ -58,7 +58,7 @@
 
     .layui-side {
       background-color: #ffffff; /* 浅色背景 */
-      box-shadow: 2px 0 10px rgba(0,0,0,0.05); /* 更柔和的阴影 */
+      box-shadow: 2px 0 16px rgba(74,144,226,0.08);
       padding-top: 20px; /* 增加顶部间距 */
     }
 
@@ -75,13 +75,12 @@
         margin-bottom: 5px; /* 增加菜单项间距 */
     }
 
-    .layui-nav-tree .layui-nav-item > a {
-      color: var(--text-color);
-      transition: all 0.2s ease-in-out; /* 更平滑的过渡 */
-      padding: 12px 20px; /* 调整填充 */
-      font-weight: 500;
-      border-radius: 6px; /* 圆角效果 */
-      margin: 0 10px;
+    .layui-nav-tree .layui-nav-item > a,
+    .layui-nav-tree .layui-nav-child dd a {
+      font-size: 16px;
+      line-height: 2.6;
+      padding-top: 6px;
+      padding-bottom: 6px;
     }
 
     .layui-nav-tree .layui-nav-item > a:hover {
@@ -91,10 +90,9 @@
 
     .layui-nav-tree .layui-nav-itemed > a, 
     .layui-nav-tree .layui-this > a {
-        background-color: var(--primary-color) !important;
-        color: white !important;
-        border-radius: 6px;
-        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2); /* 活跃项的阴影 */
+        border-left: 4px solid var(--primary-color);
+        background-color: #eaf4fd !important;
+        color: var(--primary-color) !important;
     }
 
     .layui-nav-tree .layui-nav-itemed > a .layui-nav-more {
@@ -102,28 +100,37 @@
     }
 
     .layui-nav-tree .layui-nav-child {
-        background-color: #f8f8f8; /* 子菜单背景 */
-        border-radius: 6px; /* 子菜单圆角 */
+        background-color: #f5f6fa;
+        border-radius: 6px;
         padding: 5px 0;
-        margin: 5px 10px 10px 10px; /* 调整子菜单间距 */
+        margin: 5px 10px 10px 10px;
     }
-
     .layui-nav-tree .layui-nav-child dd a {
-      padding-left: 40px; /* 子菜单项更深缩进 */
+      padding-left: 40px;
       color: var(--text-color);
       transition: all 0.2s ease-in-out;
       border-radius: 4px;
       margin: 2px 5px;
+      background: none;
+      box-shadow: none;
     }
-
-    .layui-nav-tree .layui-nav-child dd.layui-this a {
-      background-color: var(--primary-color);
-      color: white;
+    .layui-nav-tree .layui-nav-child dd.layui-this a,
+    .layui-nav-tree .layui-nav-child dd.layui-this {
+        background: #fff !important;         /* 选中为白色 */
+        color: #4a90e2 !important;           /* 主题蓝色 */
+        border-left: 4px solid #4a90e2;      /* 左侧高亮条 */
+        font-weight: bold;
+        box-shadow: none !important;
     }
-
     .layui-nav-tree .layui-nav-child dd a:hover {
-        background-color: var(--secondary-color);
-        color: var(--primary-color);
+        background: #eaf4fd !important;
+        color: #4a90e2 !important;
+    }
+    .layui-nav-tree .layui-nav-child dd a,
+    .layui-nav-tree .layui-nav-child dd {
+        background: none !important;
+        color: #2c3e50;
+        box-shadow: none !important;
     }
 
     .layui-card {
@@ -178,6 +185,19 @@
       .layui-logo {
         font-size: 1.2rem;
       }
+
+      .layui-nav-tree .layui-nav-item > a,
+      .layui-nav-tree .layui-nav-child dd a {
+          font-size: 14px;
+          line-height: 2.2;
+          padding-top: 4px;
+          padding-bottom: 4px;
+      }
+    }
+
+    .layui-nav-tree .layui-nav-item > a,
+    .layui-nav-tree .layui-nav-child {
+        border-radius: 6px;
     }
   </style>
   {% block style %}{% endblock %}
@@ -206,34 +226,34 @@
     <div class="layui-side-scroll">
       <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
       <ul class="layui-nav layui-nav-tree"  lay-filter="test">
-        <li class="layui-nav-item">
+        <li class="layui-nav-item {% if request.endpoint in ['storage', 'borrow', 'return_book', 'withdraw'] %}layui-nav-itemed{% endif %}">
           <a class="" href="javascript:;">图书管理</a>
           <dl class="layui-nav-child">
-             <dd><a href="{{ url_for('storage') }}">入库管理</a></dd>
-             <dd><a href="{{ url_for('borrow') }}">学生借书</a></dd>
-             <dd><a href="{{ url_for('return_book') }}">学生还书</a></dd>
-             <dd><a href="{{ url_for('withdraw') }}">图书注销</a></dd>
+             <dd><a href="{{ url_for('storage') }}" class="{% if request.endpoint == 'storage' %}layui-this{% endif %}">入库管理</a></dd>
+             <dd><a href="{{ url_for('borrow') }}" class="{% if request.endpoint == 'borrow' %}layui-this{% endif %}">学生借书</a></dd>
+             <dd><a href="{{ url_for('return_book') }}" class="{% if request.endpoint == 'return_book' %}layui-this{% endif %}">学生还书</a></dd>
+             <dd><a href="{{ url_for('withdraw') }}" class="{% if request.endpoint == 'withdraw' %}layui-this{% endif %}">图书注销</a></dd>
            </dl>
         </li>
-        <li class="layui-nav-item">
+        <li class="layui-nav-item {% if request.endpoint in ['change_info', 'library_info', 'book_vocabulary'] %}layui-nav-itemed{% endif %}">
           <a href="javascript:;">信息设置</a>
           <dl class="layui-nav-child">
-             <dd><a href="{{ url_for('change_info') }}">管理员信息设置</a></dd>
-             <dd><a href="{{ url_for('library_info') }}">图书馆信息设置</a></dd>
-             <dd><a href="{{ url_for('book_vocabulary') }}">图书词库设置</a></dd>
+             <dd><a href="{{ url_for('change_info') }}" class="{% if request.endpoint == 'change_info' %}layui-this{% endif %}">管理员信息设置</a></dd>
+             <dd><a href="{{ url_for('library_info') }}" class="{% if request.endpoint == 'library_info' %}layui-this{% endif %}">图书馆信息设置</a></dd>
+             <dd><a href="{{ url_for('book_vocabulary') }}" class="{% if request.endpoint == 'book_vocabulary' %}layui-this{% endif %}">图书词库设置</a></dd>
           </dl>
         </li>
         <li class="layui-nav-item">
-          <a href="{{ url_for('search_book') }}">图书信息查询</a>
+          <a href="{{ url_for('search_book') }}" class="{% if request.endpoint == 'search_book' %}layui-this{% endif %}">图书信息查询</a>
         </li>
         <li class="layui-nav-item">
-          <a href="{{ url_for('all_books') }}">所有书籍</a>
+          <a href="{{ url_for('all_books') }}" class="{% if request.endpoint == 'all_books' %}layui-this{% endif %}">所有书籍</a>
         </li>
         <li class="layui-nav-item">
-          <a href="{{ url_for('search_student') }}">学生信息查询</a>
+          <a href="{{ url_for('search_student') }}" class="{% if request.endpoint == 'search_student' %}layui-this{% endif %}">学生信息查询</a>
         </li>
         <li class="layui-nav-item">
-          <a href="{{ url_for('all_students') }}">所有学生信息</a>
+          <a href="{{ url_for('all_students') }}" class="{% if request.endpoint == 'all_students' %}layui-this{% endif %}">所有学生信息</a>
         </li>
       </ul>
     </div>

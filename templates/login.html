@@ -89,13 +89,13 @@
     <header>图书管理系统</header>
     <form class="layui-form" method="post">
         {{ form.csrf_token }}
-        <div class="layui-input-inline">
-            {{ form.account(class="layui-input",placeholder="请输入账号") }}
+        <div class="layui-input-inline" style="width: 90%;">
+            {{ form.account(class="layui-input",placeholder="请输入账号", style="width: 100%;") }}
         </div>
-        <div class="layui-input-inline">
-            {{ form.password(class="layui-input",placeholder="请输入密码") }}
+        <div class="layui-input-inline" style="width: 90%;">
+            {{ form.password(class="layui-input",placeholder="请输入密码", style="width: 100%;") }}
         </div>
-        <div class="layui-input-inline login-btn" style="width: 100%">
+        <div class="layui-input-inline login-btn" style="width: 90%">
             {{ form.submit(class="layui-btn") }}
         </div>
         <hr/>

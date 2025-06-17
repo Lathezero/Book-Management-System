@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# 主程序文件，包含Flask应用的所有路由、模型和主要逻辑
+
 from flask import Flask, render_template, session, redirect, url_for, flash, request, jsonify
 import os
 from flask_sqlalchemy import SQLAlchemy
@@ -8,35 +11,40 @@ import time, datetime
 import pymysql
 import random
 
-# Register PyMySQL as the MySQL driver
+# 注册PyMySQL为MySQL驱动
 pymysql.install_as_MySQLdb()
 
+# 获取当前文件所在目录
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+# 创建Flask应用
 app = Flask(__name__)
 manager = Manager(app)
 
+# 配置密钥和数据库
 app.config['SECRET_KEY'] = 'hard to guess string'
-# MySQL configuration
+# MySQL配置
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:1234@localhost/book_management'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+# 初始化数据库
 db = SQLAlchemy(app)
 
+# Shell上下文，用于命令行调试
 
 def make_shell_context():
     return dict(app=app, db=db, Admin=Admin, Book=Book)
 
-
 manager.add_command("shell", Shell(make_context=make_shell_context))
 
+# 登录管理器配置
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.session_protection = 'basic'
 login_manager.login_view = 'login'
 login_manager.login_message = u"请先登录。"
 
-
+# 管理员模型
 class Admin(UserMixin, db.Model):
     __tablename__ = 'admin'
     admin_id = db.Column(db.String(6), primary_key=True)
@@ -54,6 +62,7 @@ class Admin(UserMixin, db.Model):
         return self.admin_id
 
     def verify_password(self, password):
+        # 验证密码
         if password == self.password:
             return True
         else:
@@ -62,7 +71,7 @@ class Admin(UserMixin, db.Model):
     def __repr__(self):
         return '<Admin %r>' % self.admin_name
 
-
+# 图书模型
 class Book(db.Model):
     __tablename__ = 'book'
     isbn = db.Column(db.String(13), primary_key=True)
@@ -74,7 +83,7 @@ class Book(db.Model):
     def __repr__(self):
         return '<Book %r>' % self.book_name
 
-
+# 学生模型
 class Student(db.Model):
     __tablename__ = 'student'
     card_id = db.Column(db.String(8), primary_key=True)
@@ -90,7 +99,7 @@ class Student(db.Model):
     def __repr__(self):
         return '<Student %r>' % self.student_name
 
-
+# 馆藏（库存）模型
 class Inventory(db.Model):
     __tablename__ = 'inventory'
     barcode = db.Column(db.String(6), primary_key=True)
@@ -104,7 +113,7 @@ class Inventory(db.Model):
     def __repr__(self):
         return '<Inventory %r>' % self.barcode
 
-
+# 借阅记录模型
 class ReadBook(db.Model):
     __tablename__ = 'readbook'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -119,7 +128,7 @@ class ReadBook(db.Model):
     def __repr__(self):
         return '<ReadBook %r>' % self.id
 
-
+# 图书馆信息模型
 class LibraryInfo(db.Model):
     __tablename__ = 'library_info'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -133,7 +142,7 @@ class LibraryInfo(db.Model):
     def __repr__(self):
         return '<LibraryInfo %r>' % self.name
 
-
+# 图书词汇模型
 class BookVocabulary(db.Model):
     __tablename__ = 'book_vocabulary'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -144,12 +153,12 @@ class BookVocabulary(db.Model):
     def __repr__(self):
         return '<BookVocabulary %r>' % self.word
 
-
+# 用户加载回调，用于Flask-Login
 @login_manager.user_loader
 def load_user(admin_id):
     return Admin.query.get(int(admin_id))
 
-
+# 登录路由
 @app.route('/', methods=['GET', 'POST'])
 def login():
     form = Login()
@@ -165,7 +174,7 @@ def login():
             return redirect(url_for('index'))
     return render_template('login.html', form=form)
 
-
+# 登出路由
 @app.route('/logout')
 @login_required
 def logout():
@@ -173,17 +182,17 @@ def logout():
     flash('您已经登出！')
     return redirect(url_for('login'))
 
-
+# 首页路由
 @app.route('/index')
 @login_required
 def index():
     return render_template('index.html', name=session.get('name'))
 
-
+# Echarts数据接口
 @app.route('/echarts')
 @login_required
 def echarts():
-    # 生成最近10天的日期
+    # 生成最近10天的日期和借还书数量
     days = []
     num = []
     today_date = datetime.date.today()
@@ -220,14 +229,14 @@ def echarts():
         data.append(item)
     return jsonify(data)
 
-
+# 用户信息页面
 @app.route('/user/<id>')
 @login_required
 def user_info(id):
     user = Admin.query.filter_by(admin_id=id).first()
     return render_template('user-info.html', user=user, name=session.get('name'))
 
-
+# 修改密码页面
 @app.route('/change_password', methods=['GET', 'POST'])
 @login_required
 def change_password():
@@ -245,7 +254,7 @@ def change_password():
             flash(u'原密码输入错误，修改失败！')
     return render_template("change-password.html", form=form)
 
-
+# 修改个人信息页面
 @app.route('/change_info', methods=['GET', 'POST'])
 @login_required
 def change_info():
@@ -260,14 +269,14 @@ def change_info():
     right = current_user.right
     return render_template('change-info.html', form=form, id=id, right=right)
 
-
+# 查询图书页面（Ajax方式）
 @app.route('/search_book', methods=['GET', 'POST'])
 @login_required
 def search_book():  # 这个函数里不再处理提交按钮，使用Ajax局部刷新
     form = SearchBookForm()
     return render_template('search-book.html', name=session.get('name'), form=form)
 
-
+# 图书查询接口（POST）
 @app.route('/books', methods=['POST'])
 def find_book():
 
@@ -299,26 +308,27 @@ def find_book():
         data.append(item)
     return jsonify(data)
 
-
+# 所有书籍页面
 @app.route('/all_books', methods=['GET'])
 @login_required
 def all_books():
     books = Book.query.all()
     return render_template('all-books.html', name=session.get('name'), books=books)
 
-
+# 用户端图书查询页面
 @app.route('/user/book', methods=['GET', 'POST'])
 def user_book():
     form = SearchBookForm()
     return render_template('user-book.html', form=form)
 
-
+# 查询学生页面
 @app.route('/search_student', methods=['GET', 'POST'])
 @login_required
 def search_student():
     form = SearchStudentForm()
     return render_template('search-student.html', name=session.get('name'), form=form)
 
+# 时间戳转换工具函数
 
 def timeStamp(timeNum):
     if timeNum is None:
@@ -329,7 +339,7 @@ def timeStamp(timeNum):
         print(time.strftime("%Y-%m-%d", timeArray))
         return time.strftime("%Y-%m-%d", timeArray)
 
-
+# 学生信息查询接口
 @app.route('/student', methods=['POST'])
 def find_student():
     stu = Student.query.filter_by(card_id=request.form.get('card')).first()
@@ -339,14 +349,14 @@ def find_student():
         valid_date = timeStamp(stu.valid_date)
         return jsonify([{'name': stu.student_name, 'gender': stu.sex, 'valid_date': valid_date, 'debt': stu.debt}])
 
-
+# 所有学生页面
 @app.route('/all_students', methods=['GET'])
 @login_required
 def all_students():
     students = Student.query.all()
     return render_template('all-students.html', name=session.get('name'), students=students)
 
-
+# 借阅记录查询接口
 @app.route('/record', methods=['POST'])
 def find_record():
     records = db.session.query(ReadBook).join(Inventory).join(Book).filter(ReadBook.card_id == request.form.get('card'))\
@@ -364,13 +374,13 @@ def find_record():
         data.append(item)
     return jsonify(data)
 
-
+# 用户端学生查询页面
 @app.route('/user/student', methods=['GET', 'POST'])
 def user_student():
     form = SearchStudentForm()
     return render_template('user-student.html', form=form)
 
-
+# 新书入库页面
 @app.route('/storage', methods=['GET', 'POST'])
 @login_required
 def storage():
@@ -404,7 +414,7 @@ def storage():
         return redirect(url_for('storage'))
     return render_template('storage.html', name=session.get('name'), form=form)
 
-
+# 新书信息登记页面
 @app.route('/new_store', methods=['GET', 'POST'])
 @login_required
 def new_store():
@@ -429,14 +439,14 @@ def new_store():
         return redirect(url_for('new_store'))
     return render_template('new-store.html', name=session.get('name'), form=form)
 
-
+# 借书页面
 @app.route('/borrow', methods=['GET', 'POST'])
 @login_required
 def borrow():
     form = BorrowForm()
     return render_template('borrow.html', name=session.get('name'), form=form)
 
-
+# 用户端借书接口
 @app.route('/find_stu_book', methods=['GET', 'POST'])
 def find_stu_book():
     stu = Student.query.filter_by(card_id=request.form.get('card')).first()
@@ -461,7 +471,7 @@ def find_stu_book():
         data.append(item)
     return jsonify(data)
 
-
+# 还书操作接口
 @app.route('/out', methods=['GET', 'POST'])
 @login_required
 def out():
@@ -492,14 +502,14 @@ def out():
         data.append(item)
     return jsonify(data)
 
-
+# 还书页面
 @app.route('/return', methods=['GET', 'POST'])
 @login_required
 def return_book():
     form = SearchStudentForm()
     return render_template('return.html', name=session.get('name'), form=form)
 
-
+# 查询未归还图书接口
 @app.route('/find_not_return_book', methods=['GET', 'POST'])
 def find_not_return_book():
     stu = Student.query.filter_by(card_id=request.form.get('card')).first()
@@ -526,7 +536,7 @@ def find_not_return_book():
         data.append(item)
     return jsonify(data)
 
-
+# 还书入库操作接口
 @app.route('/in', methods=['GET', 'POST'])
 @login_required
 def bookin():
@@ -546,8 +556,8 @@ def bookin():
     db.session.add(book)
     db.session.commit()
     bks = db.session.query(ReadBook).join(Inventory).join(Book).filter(ReadBook.card_id == card,
-        ReadBook.end_date.is_(None)).with_entities(ReadBook.barcode, Book.isbn, Book.book_name, ReadBook.start_date,
-                                                 ReadBook.due_date).all()
+        ReadBook.end_date.is_(None)).with_entities(ReadBook.barcode, Book.isbn, Book.book_name, Book.start_date,
+                                                 Book.due_date).all()
     data = []
     for bk in bks:
         start_date = timeStamp(bk.start_date)
@@ -557,14 +567,14 @@ def bookin():
         data.append(item)
     return jsonify(data)
 
-
+# 注销图书页面
 @app.route('/withdraw', methods=['GET', 'POST'])
 @login_required
 def withdraw():
     form = SearchBookForm()
     return render_template('withdraw.html', name=session.get('name'), form=form)
 
-
+# 注销图书查询接口
 @app.route('/find_withdraw_book', methods=['POST'])
 def find_withdraw_book():
     method = request.form.get('method')
@@ -599,7 +609,7 @@ def find_withdraw_book():
         data.append(item)
     return jsonify(data)
 
-
+# 注销操作接口
 @app.route('/withdraw_book', methods=['POST'])
 @login_required
 def withdraw_book():
@@ -613,7 +623,7 @@ def withdraw_book():
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error'})
 
-
+# 图书馆信息页面
 @app.route('/library_info', methods=['GET', 'POST'])
 @login_required
 def library_info():
@@ -641,7 +651,7 @@ def library_info():
         return redirect(url_for('library_info'))
     return render_template('library-info.html', info=info, name=session.get('name'))
 
-
+# 图书词汇管理页面
 @app.route('/book_vocabulary', methods=['GET', 'POST'])
 @login_required
 def book_vocabulary():
@@ -663,7 +673,7 @@ def book_vocabulary():
     vocabularies = BookVocabulary.query.all()
     return render_template('book-vocabulary.html', vocabularies=vocabularies, name=session.get('name'))
 
-
+# 删除词汇接口
 @app.route('/delete_vocabulary/<int:id>', methods=['POST'])
 @login_required
 def delete_vocabulary(id):
@@ -673,6 +683,6 @@ def delete_vocabulary(id):
     flash('词汇删除成功！')
     return redirect(url_for('book_vocabulary'))
 
-
+# 主程序入口
 if __name__ == '__main__':
     manager.run()
