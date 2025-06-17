@@ -389,9 +389,14 @@ def all_students():
 # 借阅记录查询接口
 @app.route('/record', methods=['POST'])
 def find_record():
-    records = db.session.query(ReadBook).join(Inventory).join(Book).filter(ReadBook.card_id == request.form.get('card'))\
-        .with_entities(ReadBook.barcode, Inventory.isbn, Book.book_name, Book.author, ReadBook.start_date,
-                       ReadBook.end_date, ReadBook.due_date).all()  # with_entities啊啊啊啊卡了好久啊
+    records = db.session.query(
+        ReadBook.barcode, Inventory.isbn, Book.book_name, Book.author,
+        ReadBook.start_date, ReadBook.end_date, ReadBook.due_date
+    ).select_from(ReadBook) \
+     .join(Inventory, ReadBook.barcode == Inventory.barcode) \
+     .join(Book, Inventory.isbn == Book.isbn) \
+     .filter(ReadBook.card_id == request.form.get('card')) \
+     .all()
     data = []
     for record in records:
         start_date = timeStamp(record.start_date)
@@ -399,8 +404,14 @@ def find_record():
         end_date = timeStamp(record.end_date)
         if end_date is None:
             end_date = '未归还'
-        item = {'barcode': record.barcode, 'book_name': record.book_name, 'author': record.author,
-                'start_date': start_date, 'due_date': due_date, 'end_date': end_date}
+        item = {
+            'barcode': record.barcode,
+            'book_name': record.book_name,
+            'author': record.author,
+            'start_date': start_date,
+            'due_date': due_date,
+            'end_date': end_date
+        }
         data.append(item)
     return jsonify(data)
 
@@ -554,15 +565,26 @@ def find_not_return_book():
         return jsonify([{'stu': 2}])  # 到期
     if stu.loss is True:
         return jsonify([{'stu': 3}])  # 已经挂失
-    books = db.session.query(ReadBook).join(Inventory).join(Book).filter(ReadBook.card_id == request.form.get('card'),
-        ReadBook.end_date.is_(None)).with_entities(ReadBook.barcode, Book.isbn, Book.book_name, ReadBook.start_date,
-                                                 ReadBook.due_date).all()
+    books = db.session.query(
+        ReadBook.barcode, Book.isbn, Book.book_name, ReadBook.start_date, ReadBook.due_date
+    ).select_from(ReadBook) \
+     .join(Inventory, ReadBook.barcode == Inventory.barcode) \
+     .join(Book, Inventory.isbn == Book.isbn) \
+     .filter(
+        ReadBook.card_id == request.form.get('card'),
+        ReadBook.end_date.is_(None)
+    ).all()
     data = []
     for book in books:
         start_date = timeStamp(book.start_date)
         due_date = timeStamp(book.due_date)
-        item = {'barcode': book.barcode, 'isbn': book.isbn, 'book_name': book.book_name,
-                'start_date': start_date, 'due_date': due_date}
+        item = {
+            'barcode': book.barcode,
+            'isbn': book.isbn,
+            'book_name': book.book_name,
+            'start_date': start_date,
+            'due_date': due_date
+        }
         data.append(item)
     return jsonify(data)
 
@@ -572,8 +594,7 @@ def find_not_return_book():
 def bookin():
     barcode = request.args.get('barcode')
     card = request.args.get('card')
-    record = ReadBook.query.filter(ReadBook.barcode == barcode, ReadBook.card_id == card, ReadBook.end_date.is_(None)).\
-        first()
+    record = ReadBook.query.filter(ReadBook.barcode == barcode, ReadBook.card_id == card, ReadBook.end_date.is_(None)).first()
     today_date = datetime.date.today()
     today_str = today_date.strftime("%Y-%m-%d")
     today_stamp = time.mktime(time.strptime(today_str + ' 00:00:00', '%Y-%m-%d %H:%M:%S'))
@@ -585,9 +606,19 @@ def bookin():
     book.status = True
     db.session.add(book)
     db.session.commit()
-    bks = db.session.query(ReadBook).join(Inventory).join(Book).filter(ReadBook.card_id == card,
-        ReadBook.end_date.is_(None)).with_entities(ReadBook.barcode, Book.isbn, Book.book_name, Book.start_date,
-                                                 Book.due_date).all()
+    bks = db.session.query(
+        ReadBook.barcode,
+        Book.isbn,
+        Book.book_name,
+        ReadBook.start_date,
+        ReadBook.due_date
+    ).select_from(ReadBook) \
+     .join(Inventory, ReadBook.barcode == Inventory.barcode) \
+     .join(Book, Inventory.isbn == Book.isbn) \
+     .filter(
+        ReadBook.card_id == card,
+        ReadBook.end_date.is_(None)
+    ).all()
     data = []
     for bk in bks:
         start_date = timeStamp(bk.start_date)
